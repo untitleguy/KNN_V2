@@ -43,7 +43,7 @@ dt11 = dt['ST_Slope'].sum()
 dt12 = dt['HeartDisease'].sum()
 
 dx = [dt1, dt2, dt3, dt4]
-dx2 = pd.DataFrame(dx, index=["d1", "d2", "d3", "d4"])
+dx2 = pd.DataFrame(dx, index=["d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9", "d10", "d11", "d12"])
 
 if st.button("แสดงการจินตทัศน์ข้อมูล"):
    #st.write(dt.head(10))
