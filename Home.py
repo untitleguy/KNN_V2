@@ -158,6 +158,7 @@ if submitted:
     if prediction == 1:
         st.error("Heart disease predicted.")
         st.image("./img/grave.jpg")
-    else:
-        st.success("No heart disease predicted.")
-        st.image("./img/happy.png")
+    elif prediction == 0:
+                st.success("No heart disease predicted.")
+                st.image("./img/happy.png")
+else:st.write("ไม่ทำนาย")
