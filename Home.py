@@ -1,5 +1,7 @@
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.compose import ColumnTransformer
+from sklearn.metrics import ConfusionMatrixDisplay, accuracy_score
+from sklearn.model_selection import train_test_split
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 import streamlit as st
@@ -30,6 +32,65 @@ st.markdown(html_7, unsafe_allow_html=True)
 st.markdown("")
 dt = pd.read_csv("./data/Heart3.csv")
 st.write(dt.head(30))
+
+features = dt.drop(columns="HeartDisease")
+target = dt["HeartDisease"]
+
+
+def build_model(feature_columns):
+    categorical_features = [
+        "Sex",
+        "ChestPainType",
+        "FastingBS",
+        "RestingECG",
+        "ExerciseAngina",
+        "ST_Slope",
+    ]
+    numeric_features = [
+        column
+        for column in feature_columns.columns
+        if column not in categorical_features
+    ]
+    preprocessor = ColumnTransformer(
+        [
+            ("numeric", StandardScaler(), numeric_features),
+            (
+                "categorical",
+                OneHotEncoder(handle_unknown="ignore"),
+                categorical_features,
+            ),
+        ]
+    )
+    return make_pipeline(
+        preprocessor, KNeighborsClassifier(n_neighbors=31, weights="distance")
+    )
+
+
+train_features, test_features, train_target, test_target = train_test_split(
+    features,
+    target,
+    test_size=0.2,
+    random_state=42,
+    stratify=target,
+)
+evaluation_model = build_model(features)
+evaluation_model.fit(train_features, train_target)
+test_predictions = evaluation_model.predict(test_features)
+accuracy = accuracy_score(test_target, test_predictions)
+
+st.subheader("Model evaluation")
+st.metric("Accuracy (20% held-out test set)", f"{accuracy:.1%}")
+fig, ax = plt.subplots()
+ConfusionMatrixDisplay.from_predictions(
+    test_target,
+    test_predictions,
+    display_labels=["No disease", "Disease"],
+    cmap="Blues",
+    ax=ax,
+)
+ax.set_title("Confusion matrix")
+st.pyplot(fig)
+plt.close(fig)
 
 dt1 = dt['Age'].sum()
 dt2 = dt['Sex'].sum()
@@ -109,32 +170,7 @@ with st.form("heart_disease_prediction"):
     submitted = st.form_submit_button("ทำนายผล")
 
 if submitted:
-    features = dt.drop(columns="HeartDisease")
-    target = dt["HeartDisease"]
-    categorical_features = [
-        "Sex",
-        "ChestPainType",
-        "FastingBS",
-        "RestingECG",
-        "ExerciseAngina",
-        "ST_Slope",
-    ]
-    numeric_features = [
-        column for column in features.columns if column not in categorical_features
-    ]
-    preprocessor = ColumnTransformer(
-        [
-            ("numeric", StandardScaler(), numeric_features),
-            (
-                "categorical",
-                OneHotEncoder(handle_unknown="ignore"),
-                categorical_features,
-            ),
-        ]
-    )
-    model = make_pipeline(
-        preprocessor, KNeighborsClassifier(n_neighbors=31, weights="distance")
-    )
+    model = build_model(features)
     model.fit(features, target)
 
     input_data = pd.DataFrame(
