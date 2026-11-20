@@ -1,7 +1,8 @@
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 import streamlit as st
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 
 st.header("Got heart disease ?")
@@ -60,30 +61,81 @@ html_8 = """
 st.markdown(html_8, unsafe_allow_html=True)
 st.markdown("")
 
+st.caption("Categorical fields use the numeric codes in the training dataset.")
+with st.form("heart_disease_prediction"):
+    age = st.number_input(
+        "Age",
+        min_value=int(dt["Age"].min()),
+        max_value=int(dt["Age"].max()),
+        value=int(dt["Age"].median()),
+    )
+    sex = st.selectbox("Sex", sorted(dt["Sex"].unique()))
+    chest_pain_type = st.selectbox(
+        "ChestPainType", sorted(dt["ChestPainType"].unique())
+    )
+    resting_bp = st.number_input(
+        "RestingBP",
+        min_value=int(dt["RestingBP"].min()),
+        max_value=int(dt["RestingBP"].max()),
+        value=int(dt["RestingBP"].median()),
+    )
+    cholesterol = st.number_input(
+        "Cholesterol",
+        min_value=int(dt["Cholesterol"].min()),
+        max_value=int(dt["Cholesterol"].max()),
+        value=int(dt["Cholesterol"].median()),
+    )
+    fasting_bs = st.selectbox("FastingBS", sorted(dt["FastingBS"].unique()))
+    resting_ecg = st.selectbox("RestingECG", sorted(dt["RestingECG"].unique()))
+    max_hr = st.number_input(
+        "MaxHR",
+        min_value=int(dt["MaxHR"].min()),
+        max_value=int(dt["MaxHR"].max()),
+        value=int(dt["MaxHR"].median()),
+    )
+    exercise_angina = st.selectbox(
+        "ExerciseAngina", sorted(dt["ExerciseAngina"].unique())
+    )
+    oldpeak = st.number_input(
+        "Oldpeak",
+        min_value=float(dt["Oldpeak"].min()),
+        max_value=float(dt["Oldpeak"].max()),
+        value=float(dt["Oldpeak"].median()),
+        step=0.1,
+        format="%.1f",
+    )
+    st_slope = st.selectbox("ST_Slope", sorted(dt["ST_Slope"].unique()))
+    submitted = st.form_submit_button("ทำนายผล")
 
-pt_len = st.slider("กรุณาเลือกข้อมูล petal.length")
-pt_wd = st.slider("กรุณาเลือกข้อมูล petal.width")
+if submitted:
+    features = dt.drop(columns="HeartDisease")
+    target = dt["HeartDisease"]
+    model = make_pipeline(
+        StandardScaler(), KNeighborsClassifier(n_neighbors=3)
+    )
+    model.fit(features, target)
 
-sp_len = st.number_input("กรุณาเลือกข้อมูล sepal.length")
-sp_wd = st.number_input("กรุณาเลือกข้อมูล sepal.width")
+    input_data = pd.DataFrame(
+        [[
+            age,
+            sex,
+            chest_pain_type,
+            resting_bp,
+            cholesterol,
+            fasting_bs,
+            resting_ecg,
+            max_hr,
+            exercise_angina,
+            oldpeak,
+            st_slope,
+        ]],
+        columns=features.columns,
+    )
+    prediction = model.predict(input_data)[0]
 
-if st.button("ทำนายผล"):
-   #st.write("ทำนาย")
-   #dt = pd.read_csv("./data/iris.csv") 
-
-   X = dt.drop('variety', axis=1)
-   y = dt.variety   
-   Knn_model = KNeighborsClassifier(n_neighbors=3)
-   Knn_model.fit(X, y)  
-
-   x_input = np.array([[pt_len, pt_wd, sp_len, sp_wd]]) #ข้อมูลใหม่สำหรับทำนาย
-
-   st.write(Knn_model.predict(x_input))   
-   out=Knn_model.predict(x_input)
-
-   if out[0] == '0':
-    st.image("./img/happy.png")
-   else:
-    st.image("./img/grave.jpg")
-else:
-    st.write("ไม่ทำนาย")
+    if prediction == 1:
+        st.error("Heart disease predicted.")
+        st.image("./img/grave.jpg")
+    else:
+        st.success("No heart disease predicted.")
+        st.image("./img/happy.png")
