@@ -1,6 +1,7 @@
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -110,8 +111,29 @@ with st.form("heart_disease_prediction"):
 if submitted:
     features = dt.drop(columns="HeartDisease")
     target = dt["HeartDisease"]
+    categorical_features = [
+        "Sex",
+        "ChestPainType",
+        "FastingBS",
+        "RestingECG",
+        "ExerciseAngina",
+        "ST_Slope",
+    ]
+    numeric_features = [
+        column for column in features.columns if column not in categorical_features
+    ]
+    preprocessor = ColumnTransformer(
+        [
+            ("numeric", StandardScaler(), numeric_features),
+            (
+                "categorical",
+                OneHotEncoder(handle_unknown="ignore"),
+                categorical_features,
+            ),
+        ]
+    )
     model = make_pipeline(
-        StandardScaler(), KNeighborsClassifier(n_neighbors=3)
+        preprocessor, KNeighborsClassifier(n_neighbors=31, weights="distance")
     )
     model.fit(features, target)
 
