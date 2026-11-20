@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 st.header("Got heart disease ?")
 st.image("./img/heartbreak-heart.gif")
-html_7 = "<h3>2 possible way, dead or alive.</h3>"
+html_7 = """<h3>2 possible way, dead or alive.</h3>"""
 col1, col2 = st.columns(2)
 
 
