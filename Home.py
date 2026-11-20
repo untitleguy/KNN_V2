@@ -8,7 +8,11 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 
-st.header("Got heart disease ?")
+logo_col, title_col = st.columns([1, 6])
+with logo_col:
+    st.image("./img/35591_1.jpg", width=90)
+with title_col:
+    st.header("Got heart disease ?")
 st.image("./img/heartbreak-heart.gif")
 html_7 = """<h3>2 possible way, dead or alive.</h3>"""
 st.markdown(html_7, unsafe_allow_html=True)
