@@ -4,21 +4,19 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-st.header("โปรเจคการจำแนกข้อมูลดอกไม้")
-#st.image("./img/kairung022.jpg")
-col1, col2, col3 = st.columns(3)
+st.header("Got heart disease ?")
+st.image("./img/heartbreak-heart.gif")
+html_7 = "<h3>2 possible way, dead or alive.</h3>"
+col1, col2 = st.columns(2)
+
 
 with col1:
-   st.header("Versicolor")
+   st.header("Alive")
    st.image("./img/iris1.jpg")
 
 with col2:
-   st.header("Verginiga")
+   st.header("Dead")
    st.image("./img/iris2.jpg")
-
-with col3:
-   st.header("Setosa")
-   st.image("./img/iris3.jpg")
 
 html_7 = """
 <div style="background-color:#EC7063;padding:15px;border-radius:15px 15px 15px 15px;border-style:'solid';border-color:black">
@@ -74,11 +72,9 @@ if st.button("ทำนายผล"):
    st.write(Knn_model.predict(x_input))   
    out=Knn_model.predict(x_input)
 
-   if out[0] == 'Setosa':
-    st.image("./img/iris1.jpg")
-   elif out[0] == 'Versicolor':       
-    st.image("./img/iris2.jpg")
+   if out[0] == '0':
+    st.image("./img/happy.png")
    else:
-    st.image("./img/iris3.jpg")
+    st.image("./img/grave.jpg")
 else:
     st.write("ไม่ทำนาย")
